@@ -1,0 +1,268 @@
+<html>
+<head>
+    <script src="app.js"></script>
+    <style>
+        body {
+            direction: rtl;
+            font-family: Tahoma;
+        }
+
+        .main {
+            width: 200px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto;
+        }
+
+        progress {
+            border: 1px solid #d9d9d9;
+            height: 3px;
+            width: 200px;
+            margin-bottom: 10px;
+            /* padding: 10; */
+            display: none;
+            margin-right: 10px;
+            /* background: crimson; */
+        }
+
+        progress {
+            color: lightblue;
+        }
+
+        progress::-webkit-progress-value {
+            background: lightblue;
+        }
+
+        progress::-moz-progress-bar {
+            background: lightcolor;
+        }
+
+        progress::-webkit-progress-value {
+            background: #00ff02;
+        }
+
+        progress::-webkit-progress-bar {
+            background: #fff;
+        }
+
+        .main-box {
+            display: inline-block;
+            /*width: 10%;*/
+            width: 200px;
+
+            height: 200px;
+            text-align: center;
+            border: 1px solid transparent;
+            padding: 5px;
+            margin: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-box:hover {
+            /*border-color: #000;*/
+            /*box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);*/
+
+        }
+
+        .main-box:hover .remove-thumbnail {
+            display: block;
+        }
+
+        .remove-thumbnail {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            display: none;
+            background-color: rgba(157, 158, 167, 0.5);
+
+        }
+
+        .name-thumbnail {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+        }
+
+        .image-thumbnail {
+            width: 75%;
+            height: 75%;
+            margin: 10px;
+            border-radius: 50%;
+            border: 2px solid #c3b4b4;
+
+        }
+
+        .display-block {
+            display: block;
+        }
+
+        .display-none {
+            display: none !important;;
+        }
+
+        .remove-icon-thumbnail {
+            background: url(./images/remove.png);
+            background-repeat: no-repeat;
+            background-size: 50px 50px;
+            background-position: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .preview {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .file-upload-btn {
+            display: inline-block;
+            background-color: #181819;
+            text-align: center;
+            color: #fff;
+            width: 200px;
+            font-weight: bold;
+            height: 20px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+
+    </style>
+</head>
+<body>
+
+
+<div class="main">
+    <form id="upload_form" enctype="multipart/form-data" method="post">
+        <input type="file" name="file1" id="file1" onchange="uploadFile()" class="hidden"/>
+        <label for="file1">
+            <div class="file-upload-btn">
+                بارگذاری فایل
+            </div>
+        </label>
+        <div id="preview" class="preview"></div>
+        <progress id="progressBar" value="0" max="100"></progress>
+        <div class="file-upload-btn display-none" id="send-image-btn" onclick="sendImage()">ارسال</div>
+    </form>
+</div>
+<script>
+    function _(el) {
+        return document.getElementById(el);
+    }
+    const fileType = ['exe', 'html', 'java', 'pdf', 'rar', 'txt', 'xml', 'zip', 'js', 'css'];
+    const fileAccept = "application/*|text/*|audio/*|video/*|image/*";
+    _('file1').setAttribute('accept', fileAccept);
+    function uploadFile() {
+        if(_("file1").files.length === 0){return;}
+        _("preview").innerHTML = "";
+        let file = _("file1").files[0];
+        _("send-image-btn").classList.remove('display-none');
+        updateSize(file);
+    }
+    function sendImage() {
+        let file = _("file1").files;
+        _("progressBar").classList.add('display-block');
+        let formdata = new FormData();
+        for (let i in file) {
+            formdata.append("file" + i, file[i]);
+        }
+        let ajax = new XMLHttpRequest();
+        ajax.upload.addEventListener("progress", progressHandler, false);
+        ajax.addEventListener("load", completeHandler, false);
+        ajax.addEventListener("error", errorHandler, false);
+        ajax.addEventListener("abort", abortHandler, false);
+        ajax.open("POST", "/fileUpload");
+        ajax.send(formdata);
+    }
+
+    function removeFile(file, mainDiv) {
+        _("file1").value = "";
+        _("progressBar").classList.remove('display-block');
+        _("send-image-btn").classList.add('display-none');
+        mainDiv.remove()
+    }
+
+    function updateSize() {
+        let oFiles = _("file1").files;
+        let preview = document.getElementById('preview');
+        for (let i = 0; i < oFiles.length; i++) {
+            let file = oFiles[i];
+            let img = document.createElement("img");
+            img.classList.add("image-thumbnail");
+            img.file = file;
+            let mainDiv = document.createElement("div");
+            let nameDiv = document.createElement("div");
+            let removeDiv = document.createElement("div");
+            let removeIconDiv = document.createElement("div");
+            mainDiv.classList.add("main-box");
+            nameDiv.classList.add("name-thumbnail");
+            removeIconDiv.classList.add("remove-icon-thumbnail");
+            removeDiv.onclick = function () {
+                removeFile(file, mainDiv);
+            };
+            removeDiv.classList.add("remove-thumbnail");
+            nameDiv.innerHTML = file.name;
+            removeDiv.appendChild(removeIconDiv);
+            mainDiv.appendChild(img);
+            mainDiv.appendChild(nameDiv);
+            mainDiv.appendChild(removeDiv);
+            preview.appendChild(mainDiv);
+            let reader = new FileReader();
+            if (file.type.startsWith('image/')) {
+                reader.onload = (function (aImg) {
+                    return function (e) {
+                        aImg.src = e.target.result;
+                    };
+                })(img);
+            } else {
+                if (file.name) {
+                    let imageName = file['name'].split('.').pop();
+                    if (fileType.includes(imageName)) {
+                        img.src = `/images/${imageName}.png`;
+                    } else {
+                        img.src = `/images/documents.jpg`;
+                    }
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function progressHandler(event) {
+        let percent = (event.loaded / event.total) * 100;
+        _("progressBar").value = Math.round(percent);
+    }
+
+    function completeHandler() {
+        document.getElementsByClassName('main-box')[0].style.borderColor = "#2af112";
+        document.getElementsByClassName('remove-thumbnail')[0].style.display = 'none';
+        _("progressBar").classList.remove('display-block');
+        _("send-image-btn").classList.add('display-none');
+        _("progressBar").value = 0;
+    }
+
+    function errorHandler() {
+        document.getElementsByClassName('main-box')[0].style.borderColor = "#f30f0f";
+        _("progressBar").value = 0;
+    }
+
+    function abortHandler() {
+        document.getElementsByClassName('main-box')[0].style.borderColor = "#f30f0f";
+        _("progressBar").value = 0;
+    }
+</script>
+</body>
+</html>
