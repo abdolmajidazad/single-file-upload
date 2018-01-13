@@ -1,11 +1,8 @@
 const express = require('express');
 const app = express();
 var formidable = require('formidable');
-var bodyParser = require('body-parser');
 var fs = require('fs');
 var path = require('path');
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/fileUpload.html'));
 });
@@ -14,22 +11,6 @@ app.get('/images/:name', function(req, res) {
 });
 
 
-app.post('/post/fetch', function(req, res) {
-    console.log("params post: ", req.body);
-    res.json(req.body);
-    // res.status(500).send({ error: "boo:(" });
-
-});
-
-
-
-app.get('/get/fetch', function(req, res) {
-    console.log("params get: ", req);
-    res.json(req.query);
-
-
-
-});
 
 app.post('/fileUpload', function(req, res) {
     let form = new formidable.IncomingForm();
