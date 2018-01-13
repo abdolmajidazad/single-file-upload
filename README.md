@@ -5,8 +5,6 @@ this project is based on Express
 ### Technologies
 - Express
 - Javascript
-- Html
-- Css
 
 for running project use this command in your console :
 ```

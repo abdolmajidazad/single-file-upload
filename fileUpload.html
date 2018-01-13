@@ -159,6 +159,93 @@
     </form>
 </div>
 <script>
+    const postUrl = '/post/fetch';
+    let data = {
+            "startDate": "1396/09/26",
+            "endDate": "1396/10/03",
+            "versionCode": 32006
+        };
+
+
+    //    ravesh aval baraye post data ba fetch
+    let postData = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    };
+    fetch(postUrl, postData).then(function(response) {
+        if(response.ok) {
+            return response.json().then(resp=>resp);
+        }
+    }).then(function(resp) {
+        console.log("resp data post 1: ", resp)
+    }).catch(function(error) {
+        console.log('error data post 1 : ', error.message);
+    });
+
+
+
+
+
+
+
+    //    ravesh dovom baraye post data ba fetch
+    let requestPost = new Request(postUrl, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: new Headers({
+            "Content-Type": "application/json"
+        })
+    });
+    fetch(requestPost).then(function(response) {
+        if(response.ok) {
+            return response.json().then(resp=>resp);
+        }
+    }).then(function(resp) {
+        console.log("resp data post 2: ", resp)
+    }).catch(function(error) {
+        console.log('error data post 2 : ', error.message);
+    });
+
+
+
+
+
+
+    //    ravesh aval baraye get data ba fetch
+    var esc = encodeURIComponent;
+    var query = Object.keys(data)
+        .map(k => esc(k) + '=' + esc(data[k]))
+        .join('&');
+    let getUrl  = `/get/fetch?${query}`;
+    let requestGet = new Request(getUrl, {
+        method: 'GET',
+        headers: new Headers({
+            "Content-Type": "application/json"
+        })
+    });
+    fetch(requestGet).then(function(response) {
+        if(response.ok) {
+            return response.json().then(resp=>resp);
+        }
+    }).then(function(resp) {
+        console.log("resp data get 1: ", resp)
+    }).catch(function(error) {
+        console.log('error data get 1 : ', error.message);
+    });
+
+
+
+
+
+
+
+
+
+
+
     function _(el) {
         return document.getElementById(el);
     }
